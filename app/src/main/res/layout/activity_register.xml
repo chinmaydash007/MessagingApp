@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegisterActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#74B9FF"
+        android:orientation="vertical" />
+
+    <LinearLayout
+        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Username"
+            android:textColorHint="@color/colorAccent"
+
+            app:boxStrokeColor="#0097A7"
+            app:boxStrokeWidth="2dp"
+            app:counterEnabled="true"
+            app:counterMaxLength="20"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:hintAnimationEnabled="true"
+            android:id="@+id/register_username">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:textColorHint="@color/colorAccent"
+            app:boxStrokeColor="#0097A7"
+            app:boxStrokeWidth="2dp"
+            app:hintAnimationEnabled="true"
+            android:id="@+id/register_email">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:textColorHint="@color/colorAccent"
+            app:boxStrokeColor="#0097A7"
+            app:boxStrokeWidth="2dp"
+            app:hintAnimationEnabled="true"
+            android:id="@+id/register_password">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Register"
+
+            android:id="@+id/btn_register"
+            android:textAllCaps="false"
+            android:textColor="@color/colorAccent" />
+        <TextView
+            android:id="@+id/already_have_an_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Already have an account?"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"/>
+
+
+    </LinearLayout>
+
+</RelativeLayout>
