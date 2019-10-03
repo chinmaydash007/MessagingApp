@@ -108,7 +108,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void RetriveOldUserData() {
-        databaseReference.child(firebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+        databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {

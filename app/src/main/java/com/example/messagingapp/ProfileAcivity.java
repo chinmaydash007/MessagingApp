@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.example.messagingapp.Model.Contacts;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,15 +25,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ProfileAcivity extends AppCompatActivity {
     CircleImageView circleImageView;
     TextView username, user_status;
-    Button sendRequest,cancelRequest;
-    DatabaseReference databaseReference, chatsRequestRef;
+    Button sendRequest, cancelRequest;
+    DatabaseReference databaseReference, chatsRequestRef,contactsRef;
     String receiver_userId, senderUserId, currentState;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
-
-
-
-
 
 
     @Override
@@ -44,10 +41,11 @@ public class ProfileAcivity extends AppCompatActivity {
         username = findViewById(R.id.textView3);
         user_status = findViewById(R.id.textView5);
         sendRequest = findViewById(R.id.send_request);
-        cancelRequest=findViewById(R.id.receive_request);
+        cancelRequest = findViewById(R.id.receive_request);
 
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
         chatsRequestRef = FirebaseDatabase.getInstance().getReference().child("Chats_Request");
+        contactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
 
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
@@ -65,9 +63,9 @@ public class ProfileAcivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if(dataSnapshot.exists()){
-                    String uname=dataSnapshot.child("name").getValue().toString();
-                    String status=dataSnapshot.child("status").getValue().toString();
+                if (dataSnapshot.exists()) {
+                    String uname = dataSnapshot.child("name").getValue().toString();
+                    String status = dataSnapshot.child("status").getValue().toString();
                     username.setText(uname);
                     user_status.setText(status);
 
@@ -75,8 +73,8 @@ public class ProfileAcivity extends AppCompatActivity {
 
 
                 }
-                if(dataSnapshot.hasChild("profile_image")){
-                    String profile_image_url=dataSnapshot.child("profile_image").getValue().toString();
+                if (dataSnapshot.hasChild("profile_image")) {
+                    String profile_image_url = dataSnapshot.child("profile_image").getValue().toString();
                     Glide.with(ProfileAcivity.this).load(profile_image_url).placeholder(R.drawable.profile_image).centerCrop().into(circleImageView);
 
                 }
@@ -96,14 +94,13 @@ public class ProfileAcivity extends AppCompatActivity {
         chatsRequestRef.child(senderUserId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild(receiver_userId)){
-                    String request_type=dataSnapshot.child(receiver_userId).child("request_type").getValue().toString();
-                    if(request_type.equals("send")){
-                        currentState="request_send";
+                if (dataSnapshot.hasChild(receiver_userId)) {
+                    String request_type = dataSnapshot.child(receiver_userId).child("request_type").getValue().toString();
+                    if (request_type.equals("send")) {
+                        currentState = "request_send";
                         sendRequest.setText("Cancel Request");
-                    }
-                    else if(request_type.equals("received")){
-                        currentState="request_received";
+                    } else if (request_type.equals("received")) {
+                        currentState = "request_received";
                         sendRequest.setText("Accept Chat Request");
                         cancelRequest.setVisibility(View.VISIBLE);
                         cancelRequest.setEnabled(true);
@@ -115,33 +112,108 @@ public class ProfileAcivity extends AppCompatActivity {
                         });
                     }
                 }
+                else{
+                    contactsRef.child(senderUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.hasChild(receiver_userId)){
+                                currentState="friends";
+                                sendRequest.setText("Remove this contact");
+                                cancelRequest.setVisibility(View.INVISIBLE);
+                                cancelRequest.setEnabled(false);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-    });
+        });
 
         //Code for whom you can send chat request except yourself.
-        if(!senderUserId.equals(receiver_userId)){
+        if (!senderUserId.equals(receiver_userId)) {
             sendRequest.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     sendRequest.setEnabled(false);
-                    if(currentState.equals("new")){
+                    if (currentState.equals("new")) {
                         SendChatRequest();
 
                     }
-                    if(currentState.equals("request_send")){
+                    if (currentState.equals("request_send")) {
                         CancelChatRequest();
+                    }
+                    if (currentState.equals("request_received")) {
+                        AcceptChatRequest();
+                    }
+                    if(currentState.equals("friends")){
+                        RemoveSpecificContact();
                     }
                 }
             });
-        }
-        else{
+        } else {
             sendRequest.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void RemoveSpecificContact() {
+        contactsRef.child(senderUserId).child(receiver_userId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                contactsRef.child(receiver_userId).child(senderUserId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(ProfileAcivity.this, "Request cancelled.", Toast.LENGTH_SHORT).show();
+                        sendRequest.setEnabled(true);
+                        sendRequest.setText("Send Request");
+                        currentState = "new";
+                        cancelRequest.setVisibility(View.INVISIBLE);
+                        cancelRequest.setEnabled(false);
+
+                    }
+                });
+            }
+        });
+    }
+
+    private void AcceptChatRequest() {
+        contactsRef.child(senderUserId).child(receiver_userId).child("Contacts").setValue("Saved").addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                contactsRef.child(receiver_userId).child(senderUserId).child("Contacts").setValue("Saved").addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        chatsRequestRef.child(senderUserId).child(receiver_userId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                chatsRequestRef.child(receiver_userId).child(senderUserId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        sendRequest.setEnabled(true);
+                                        currentState="friends";
+                                        sendRequest.setText("Remove this contact");
+                                        cancelRequest.setVisibility(View.INVISIBLE);
+                                        cancelRequest.setEnabled(false);
+
+
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+
     }
 
     private void CancelChatRequest() {
@@ -154,7 +226,7 @@ public class ProfileAcivity extends AppCompatActivity {
                         Toast.makeText(ProfileAcivity.this, "Request cancelled.", Toast.LENGTH_SHORT).show();
                         sendRequest.setEnabled(true);
                         sendRequest.setText("Send Request");
-                        currentState="new";
+                        currentState = "new";
                         cancelRequest.setVisibility(View.INVISIBLE);
                         cancelRequest.setEnabled(false);
 
@@ -173,9 +245,9 @@ public class ProfileAcivity extends AppCompatActivity {
                 chatsRequestRef.child(receiver_userId).child(senderUserId).child("request_type").setValue("received").addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                            sendRequest.setEnabled(true);
-                            currentState="request_send";
-                            sendRequest.setText("cancel Request");
+                        sendRequest.setEnabled(true);
+                        currentState = "request_send";
+                        sendRequest.setText("cancel Request");
 
                     }
                 });
