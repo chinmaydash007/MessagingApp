@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.example.messagingapp.Fragments.ChatFragment;
 import com.example.messagingapp.Fragments.ContactsFragment;
 import com.example.messagingapp.Fragments.GroupsFragment;
+import com.example.messagingapp.Fragments.RequestFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     public ViewPagerAdapter(FragmentManager fm) {
@@ -23,6 +24,8 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
                 return new GroupsFragment();
             case 2:
                 return new ContactsFragment();
+            case 3:
+                return new RequestFragment();
             default:
                 return null;
         }
@@ -30,7 +33,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 4;
     }
 
 
@@ -44,6 +47,8 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
                 return "Groups";
             case 2:
                 return "Contacts";
+            case 3:
+                return "Requests";
             default:
                 return "null";
         }
