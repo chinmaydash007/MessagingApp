@@ -41,6 +41,7 @@ FindFriendsAdapter findFriendsAdapter;
 
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
+        
         FirebaseRecyclerOptions<Contacts> firebaseRecyclerOptions=new FirebaseRecyclerOptions.Builder<Contacts>()
                 .setQuery(userRef,Contacts.class)
                 .build();

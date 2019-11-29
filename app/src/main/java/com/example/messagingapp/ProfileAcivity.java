@@ -20,13 +20,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileAcivity extends AppCompatActivity {
     CircleImageView circleImageView;
     TextView username, user_status;
     Button sendRequest, cancelRequest;
-    DatabaseReference databaseReference, chatsRequestRef,contactsRef;
+    DatabaseReference databaseReference, chatsRequestRef,contactsRef,notificationRef;
     String receiver_userId, senderUserId, currentState;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
@@ -46,6 +48,7 @@ public class ProfileAcivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
         chatsRequestRef = FirebaseDatabase.getInstance().getReference().child("Chats_Request");
         contactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
+        notificationRef = FirebaseDatabase.getInstance().getReference().child("Notifications");
 
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
@@ -245,9 +248,18 @@ public class ProfileAcivity extends AppCompatActivity {
                 chatsRequestRef.child(receiver_userId).child(senderUserId).child("request_type").setValue("received").addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        sendRequest.setEnabled(true);
-                        currentState = "request_send";
-                        sendRequest.setText("cancel Request");
+                        HashMap<String,String> hashMap=new HashMap<>();
+                        hashMap.put("from",senderUserId);
+                        hashMap.put("type","request");
+                        notificationRef.child(receiver_userId).push().setValue(chatsRequestRef).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                sendRequest.setEnabled(true);
+                                currentState = "request_send";
+                                sendRequest.setText("cancel Request");
+                            }
+                        });
+
 
                     }
                 });
